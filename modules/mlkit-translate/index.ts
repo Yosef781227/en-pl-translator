@@ -10,8 +10,9 @@ export interface MLKitTranslateNativeModule {
 let nativeModule: MLKitTranslateNativeModule | null = null;
 try {
   nativeModule = requireNativeModule<MLKitTranslateNativeModule>('MLKitTranslate');
-} catch {
+} catch (e) {
   // Not available in Expo Go or on web — the app needs the dev-client build.
+  console.warn('[mlkit-translate] native module failed to load:', e);
   nativeModule = null;
 }
 

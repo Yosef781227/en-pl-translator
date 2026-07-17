@@ -27,9 +27,28 @@ jobs:
       - name: Generate iOS native project
         run: npx expo prebuild --platform ios --no-install
 
+      # The app is useless without these native modules — fail fast if the
+      # autolinker loses any of them (happened once with a version mismatch).
+      - name: Verify native modules are autolinked
+        run: |
+          set -euo pipefail
+          RESOLVED=$(npx expo-modules-autolinking resolve -p apple)
+          for mod in ExpoSpeechRecognition ExpoMLKitTranslate AudioRoute; do
+            echo "$RESOLVED" | grep -q "$mod" || { echo "::error::$mod missing from autolinking!"; exit 1; }
+            echo "$mod: OK"
+          done
+
       - name: Install CocoaPods dependencies
         run: pod install
         working-directory: ios
+
+      - name: Verify native modules are in the Podfile.lock
+        run: |
+          set -euo pipefail
+          for pod in ExpoSpeechRecognition ExpoMLKitTranslate AudioRoute; do
+            grep -q "$pod" ios/Podfile.lock || { echo "::error::$pod missing from Podfile.lock!"; exit 1; }
+            echo "$pod: OK"
+          done
 
       # Debug configuration on purpose: it produces the dev-client launcher
       # that connects to the Metro server on the PC for live development.
