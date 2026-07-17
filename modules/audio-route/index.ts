@@ -18,9 +18,10 @@ export interface AudioRouteNativeModule {
 let nativeModule: AudioRouteNativeModule | null = null;
 try {
   nativeModule = requireNativeModule<AudioRouteNativeModule>('AudioRoute');
-} catch {
+} catch (e) {
   // Not available in Expo Go, on Android, or on web — callers fall back to
   // the OS default routing.
+  console.warn('[audio-route] native module failed to load:', e);
   nativeModule = null;
 }
 

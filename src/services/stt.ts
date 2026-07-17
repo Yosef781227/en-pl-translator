@@ -37,8 +37,13 @@ export interface SttModule {
 export const SpeechRecognition: SttModule | null = (() => {
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    return require('expo-speech-recognition').ExpoSpeechRecognitionModule;
-  } catch {
+    const mod = require('expo-speech-recognition').ExpoSpeechRecognitionModule;
+    if (!mod) {
+      console.warn('[stt] expo-speech-recognition loaded but module object is missing');
+    }
+    return mod ?? null;
+  } catch (e) {
+    console.warn('[stt] expo-speech-recognition failed to load:', e);
     return null;
   }
 })();
